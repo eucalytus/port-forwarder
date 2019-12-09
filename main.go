@@ -9,17 +9,15 @@ import (
 )
 
 var (
-	localPort    int
-	remoteServer string
-	remotePort   int
+	localPort   int
+	forwardAddr string
 )
 
 func main() {
-	flag.StringVar(&remoteServer, "remote-server-addr", "0.0.0.0", "remote server address, default is localhost ")
-	flag.IntVar(&remotePort, "remote-server-port", 0, "remote server port")
+	flag.StringVar(&forwardAddr, "forward-addr", "", "forward address")
 	flag.IntVar(&localPort, "listen", 0, "listen port")
 	flag.Parse()
-	if len(remoteServer) == 0 || remotePort <= 0 || localPort <= 0 {
+	if len(forwardAddr) == 0 || localPort <= 0 {
 		log.Fatal("invalid configuration")
 	}
 
@@ -45,7 +43,7 @@ func handleClientRequest(client net.Conn) {
 	}
 	defer client.Close()
 
-	server, err := net.Dial("tcp", net.JoinHostPort(remoteServer, fmt.Sprintf("%d", remotePort)))
+	server, err := net.Dial("tcp", forwardAddr)
 	if err != nil {
 		log.Println(err)
 		return
